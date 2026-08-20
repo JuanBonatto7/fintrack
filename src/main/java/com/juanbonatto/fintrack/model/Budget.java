@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "budgets", uniqueConstraints = @UniqueConstraint(columnNames = {"account_id", "category_id", "year", "month"}))
+@Table(name = "budgets", uniqueConstraints = @UniqueConstraint(columnNames = {"account_id", "category_id", "budget_year", "budget_month"}))
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -30,11 +30,11 @@ public class Budget {
     @NotNull
     @Min(1)
     @Max(12)
-    @Column(nullable = false)
+    @Column(name = "budget_month", nullable = false)
     private Integer month;
 
     @NotNull
-    @Column(nullable = false)
+    @Column(name = "budget_year", nullable = false)
     private Integer year;
 
     @NotNull
