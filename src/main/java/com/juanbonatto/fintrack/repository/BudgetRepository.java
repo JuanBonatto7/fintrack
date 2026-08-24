@@ -10,5 +10,7 @@ public interface BudgetRepository extends JpaRepository<Budget, Long> {
 
     List<Budget> findByAccountId(Long accountId);
 
+    List<Budget> findByAccountIdAndYearAndMonth(Long accountId, Integer year, Integer month);
+
     Optional<Budget> findByAccountIdAndCategoryIdAndYearAndMonth(Long accountId, Long categoryId, Integer year, Integer month);
 }

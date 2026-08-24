@@ -2,8 +2,10 @@ package com.juanbonatto.fintrack.controller;
 
 import com.juanbonatto.fintrack.dto.request.AccountRequest;
 import com.juanbonatto.fintrack.dto.response.AccountResponse;
+import com.juanbonatto.fintrack.dto.response.AccountSummaryResponse;
 import com.juanbonatto.fintrack.model.User;
 import com.juanbonatto.fintrack.service.AccountService;
+import com.juanbonatto.fintrack.service.AccountSummaryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,7 @@ import java.util.List;
 public class AccountController {
 
     private final AccountService accountService;
+    private final AccountSummaryService accountSummaryService;
 
     @GetMapping
     public ResponseEntity<List<AccountResponse>> getAll(@AuthenticationPrincipal User user) {
@@ -44,5 +47,15 @@ public class AccountController {
     public ResponseEntity<Void> delete(@PathVariable Long id, @AuthenticationPrincipal User user) {
         accountService.delete(id, user);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/summary")
+    public ResponseEntity<AccountSummaryResponse> getSummary(
+            @PathVariable Long id,
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer month,
+            @AuthenticationPrincipal User user
+    ) {
+        return ResponseEntity.ok(accountSummaryService.getSummary(id, year, month, user));
     }
 }
