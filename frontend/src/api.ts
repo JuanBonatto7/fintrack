@@ -24,7 +24,7 @@ export type Account = {
 export type Category = {
   id: number
   name: string
-  type: 'INCOME' | 'EXPENSE'
+  type: 'INCOME' | 'EXPENSE' | 'BOTH'
   icon?: string
   color?: string
 }
@@ -39,6 +39,16 @@ export type Transaction = {
   categoryId: number
   categoryName: string
   createdAt: string
+}
+
+export type Budget = {
+  id: number
+  amount: number
+  month: number
+  year: number
+  accountId: number
+  categoryId: number
+  categoryName: string
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -96,6 +106,38 @@ export function createTransaction(transaction: Omit<Transaction, 'id' | 'categor
     method: 'POST',
     body: JSON.stringify(transaction),
   })
+}
+
+export function createAccount(account: { name: string; currency: string }) {
+  return request<Account>('/accounts', { method: 'POST', body: JSON.stringify(account) })
+}
+
+export function deleteAccount(id: number) {
+  return request<void>(`/accounts/${id}`, { method: 'DELETE' })
+}
+
+export function createCategory(category: { name: string; type: 'INCOME' | 'EXPENSE'; icon: string; color: string }) {
+  return request<Category>('/categories', { method: 'POST', body: JSON.stringify(category) })
+}
+
+export function deleteCategory(id: number) {
+  return request<void>(`/categories/${id}`, { method: 'DELETE' })
+}
+
+export function deleteTransaction(id: number) {
+  return request<void>(`/transactions/${id}`, { method: 'DELETE' })
+}
+
+export function getBudgets(accountId: number) {
+  return request<Budget[]>(`/budgets?accountId=${accountId}`)
+}
+
+export function createBudget(budget: Omit<Budget, 'id' | 'categoryName'>) {
+  return request<Budget>('/budgets', { method: 'POST', body: JSON.stringify(budget) })
+}
+
+export function deleteBudget(id: number) {
+  return request<void>(`/budgets/${id}`, { method: 'DELETE' })
 }
 
 export function saveSession(auth: AuthResponse) {
