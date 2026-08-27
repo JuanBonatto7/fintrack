@@ -21,6 +21,11 @@ export type Account = {
   createdAt: string
 }
 
+export type AccountBalances = {
+  accountCount: number
+  balancesByCurrency: Record<string, number>
+}
+
 export type Category = {
   id: number
   name: string
@@ -91,6 +96,10 @@ export function getCurrentUser() {
 
 export function getAccounts() {
   return request<Account[]>('/accounts')
+}
+
+export function getAccountBalances() {
+  return request<AccountBalances>('/accounts/summary')
 }
 
 export function getCategories() {

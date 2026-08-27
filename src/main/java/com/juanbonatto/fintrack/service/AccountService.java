@@ -1,17 +1,21 @@
 package com.juanbonatto.fintrack.service;
 
 import com.juanbonatto.fintrack.dto.request.AccountRequest;
+import com.juanbonatto.fintrack.dto.response.AccountBalancesResponse;
 import com.juanbonatto.fintrack.dto.response.AccountResponse;
 import com.juanbonatto.fintrack.exception.AccessDeniedException;
 import com.juanbonatto.fintrack.exception.ResourceNotFoundException;
 import com.juanbonatto.fintrack.model.Account;
+import com.juanbonatto.fintrack.model.Currency;
 import com.juanbonatto.fintrack.model.User;
 import com.juanbonatto.fintrack.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +27,19 @@ public class AccountService {
         return accountRepository.findByUserId(user.getId()).stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    public AccountBalancesResponse getBalancesForUser(User user) {
+        List<Account> accounts = accountRepository.findByUserId(user.getId());
+        Map<Currency, BigDecimal> balancesByCurrency = new EnumMap<>(Currency.class);
+
+        accounts.forEach(account -> balancesByCurrency.merge(
+            account.getCurrency(), account.getBalance(), BigDecimal::add));
+
+        return AccountBalancesResponse.builder()
+                .accountCount(accounts.size())
+                .balancesByCurrency(balancesByCurrency)
+                .build();
     }
 
     public AccountResponse getById(Long id, User user) {

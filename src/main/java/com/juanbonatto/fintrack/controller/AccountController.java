@@ -1,6 +1,7 @@
 package com.juanbonatto.fintrack.controller;
 
 import com.juanbonatto.fintrack.dto.request.AccountRequest;
+import com.juanbonatto.fintrack.dto.response.AccountBalancesResponse;
 import com.juanbonatto.fintrack.dto.response.AccountResponse;
 import com.juanbonatto.fintrack.dto.response.AccountSummaryResponse;
 import com.juanbonatto.fintrack.model.User;
@@ -26,6 +27,11 @@ public class AccountController {
     @GetMapping
     public ResponseEntity<List<AccountResponse>> getAll(@AuthenticationPrincipal User user) {
         return ResponseEntity.ok(accountService.getAllForUser(user));
+    }
+
+    @GetMapping("/summary")
+    public ResponseEntity<AccountBalancesResponse> getBalances(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(accountService.getBalancesForUser(user));
     }
 
     @GetMapping("/{id}")

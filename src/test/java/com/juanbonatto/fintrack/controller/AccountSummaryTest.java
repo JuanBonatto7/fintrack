@@ -1,9 +1,11 @@
 package com.juanbonatto.fintrack.controller;
 
 import com.juanbonatto.fintrack.AbstractIntegrationTest;
+import com.juanbonatto.fintrack.dto.request.AccountRequest;
 import com.juanbonatto.fintrack.dto.request.BudgetRequest;
 import com.juanbonatto.fintrack.dto.request.TransactionRequest;
 import com.juanbonatto.fintrack.model.CategoryType;
+import com.juanbonatto.fintrack.model.Currency;
 import com.juanbonatto.fintrack.model.TransactionType;
 import org.junit.jupiter.api.Test;
 
@@ -16,6 +18,30 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class AccountSummaryTest extends AbstractIntegrationTest {
+
+    @Test
+    void balancesSummaryKeepsCurrenciesSeparate() throws Exception {
+        String token = registerAndGetToken("Juan", "summaryCurrencies@example.com", "password123");
+        Long arsAccountId = createAccount(token, "Cuenta ARS");
+        AccountRequest usdRequest = new AccountRequest("Cuenta USD", Currency.USD);
+
+        mockMvc.perform(post("/api/accounts")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(usdRequest)))
+                .andExpect(status().isCreated());
+
+        Long categoryId = createCategory(token, "Sueldo", CategoryType.INCOME);
+        createTransaction(token, arsAccountId, categoryId, TransactionType.INCOME, "1000", LocalDate.now());
+
+        mockMvc.perform(get("/api/accounts/summary")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accountCount").value(2))
+                .andExpect(jsonPath("$.balancesByCurrency.ARS").value(1000.0))
+                .andExpect(jsonPath("$.balancesByCurrency.USD").value(0.0))
+                .andExpect(jsonPath("$.totalBalance").doesNotExist());
+    }
 
     @Test
     void summaryAggregatesIncomeExpenseAndBudgets() throws Exception {
