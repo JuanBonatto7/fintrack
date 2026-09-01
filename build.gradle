@@ -42,3 +42,50 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+// Frontend build integration
+task buildFrontend(type: Exec) {
+	description = 'Build the React frontend'
+	group = 'frontend'
+	
+	String os = System.getProperty('os.name').toLowerCase()
+	if (os.contains('windows')) {
+		commandLine 'cmd', '/c', 'build-frontend.bat'
+	} else {
+		commandLine 'bash', '-c', './build-frontend.sh'
+	}
+	
+	// Only run if frontend directory exists
+	onlyIf { file('frontend/package.json').exists() }
+}
+
+task copyFrontendDist {
+	description = 'Copy compiled frontend to Spring Boot resources'
+	group = 'frontend'
+	dependsOn buildFrontend
+	
+	doLast {
+		if (file('frontend/dist').exists()) {
+			copy {
+				from 'frontend/dist'
+				into 'src/main/resources/static'
+			}
+			println('✓ Frontend build copied to src/main/resources/static')
+		} else {
+			println('⚠ Warning: frontend/dist not found')
+		}
+	}
+}
+
+// Make processResources explicitly depend on copyFrontendDist
+processResources.dependsOn copyFrontendDist
+
+// Make bootRun depend on frontend build
+bootRun.dependsOn copyFrontendDist
+
+// Clean task should also clean frontend dist
+clean.doLast {
+	delete 'frontend/dist'
+	delete 'src/main/resources/static'
+	println('✓ Cleaned frontend build artifacts')
+}

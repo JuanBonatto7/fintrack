@@ -117,12 +117,26 @@ export function createTransaction(transaction: Omit<Transaction, 'id' | 'categor
   })
 }
 
+export function updateAccount(id: number, account: { name: string; currency: string }) {
+  return request<Account>(`/accounts/${id}`, { 
+    method: 'PUT', 
+    body: JSON.stringify(account) 
+  })
+}
+
 export function createAccount(account: { name: string; currency: string }) {
   return request<Account>('/accounts', { method: 'POST', body: JSON.stringify(account) })
 }
 
 export function deleteAccount(id: number) {
   return request<void>(`/accounts/${id}`, { method: 'DELETE' })
+}
+
+export function updateCategory(id: number, category: { name: string; type: 'INCOME' | 'EXPENSE'; icon: string; color: string }) {
+  return request<Category>(`/categories/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(category),
+  })
 }
 
 export function createCategory(category: { name: string; type: 'INCOME' | 'EXPENSE'; icon: string; color: string }) {
@@ -133,12 +147,26 @@ export function deleteCategory(id: number) {
   return request<void>(`/categories/${id}`, { method: 'DELETE' })
 }
 
+export function updateTransaction(id: number, transaction: Omit<Transaction, 'id' | 'categoryName' | 'createdAt'>) {
+  return request<Transaction>(`/transactions/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(transaction),
+  })
+}
+
 export function deleteTransaction(id: number) {
   return request<void>(`/transactions/${id}`, { method: 'DELETE' })
 }
 
 export function getBudgets(accountId: number) {
   return request<Budget[]>(`/budgets?accountId=${accountId}`)
+}
+
+export function updateBudget(id: number, budget: Omit<Budget, 'id' | 'categoryName'>) {
+  return request<Budget>(`/budgets/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(budget),
+  })
 }
 
 export function createBudget(budget: Omit<Budget, 'id' | 'categoryName'>) {

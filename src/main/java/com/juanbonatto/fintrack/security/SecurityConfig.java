@@ -45,8 +45,15 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // Public API endpoints for authentication
                         .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                        // H2 console for development
                         .requestMatchers("/h2-console/**").permitAll()
+                        // Static resources (CSS, JS, images, etc.)
+                        .requestMatchers("/", "/index.html", "/static/**", "/assets/**", "/favicon.svg", "/icons.svg").permitAll()
+                        // Protected API endpoints
+                        .requestMatchers("/api/**").authenticated()
+                        // Everything else requires authentication
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
